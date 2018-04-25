@@ -76,7 +76,7 @@
             <li>
               <a>
               <span class="icon icon_service"></span>
-              <span>聊天功能缓开发</span>
+              <span>聊天功能</span>
               </a>
             </li>
             <!-- <li>
@@ -281,8 +281,6 @@ header{
 	left: 50%;
 	margin-left: -1.75rem;
 	bottom: -25px;
-}
-.div_display{
 }
 
 /*model css 模太框*/
