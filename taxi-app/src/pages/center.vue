@@ -2,9 +2,9 @@
   <div class="bank">
     <header>
       <div class="top_nav"> 
-      	<a class="header_left icon_left"></a>
+      	<a class="header_left icon_left" @click="backToHome"></a>
         <span class="sp_nav">个人中心</span>
-        <a class="hear_right">编辑</a>
+        <a class="hear_right" @touchend="gotoEditPage">编辑</a>
       </div>
       <div class="top_as"></div>
     </header>
@@ -14,7 +14,7 @@
     <div class="personal_min">
       <div class="det_user_phone">
         <span class="user_portrait03"><img src="../assets/icons/icon_portrait.png"></span>
-        <span class="user_name03">张梅梅</span>
+        <span class="user_name03">{{nickName}}</span>
       </div>
       <div class="user_aut">
         <div class="iconatt">
@@ -26,13 +26,54 @@
           <span class="icon_not_atted">未认证</span>
    	    </div>
    	  </div>
+      <div class="re_regist">
+          <a class="btn_regist" id="regist" @touchend="logOut">退出登陆</a>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
 export default {
-  
+  data() {
+    return {
+        nickName:'',
+    }
+  },
+  mounted() {
+      this.checkLogin();
+  },
+  methods: {
+    backToHome () {
+        console.log("跳到home");
+        this.$router.push('/home');
+    },
+    gotoLoginPage() {
+        this.$router.push('/user');
+    },
+    gotoEditPage() {
+        this.$router.push('/edit');
+    },
+    logOut() {
+        axios.post('/users/logout').then((response)=>{
+          let res = response.data;
+          if(res.status == "0") {
+            console.log('已登出');
+            this.gotoLoginPage();
+          }
+        })
+    },
+    checkLogin() {
+        axios.get('/users/checklogin').then((response)=>{
+            let res = response.data;
+            if(res.status == '0') {
+                console.log('已登陆',res);
+                this.nickName = res.result;
+            }
+        });
+    },
+  }
 }
 </script>
 
@@ -164,5 +205,22 @@ header{
 	padding-left: 1.5rem;
 	background: url(../assets/icons/icon_not_atted.png) no-repeat left;
 	background-size: 20%;
+}
+
+.re_regist{
+	width: 100%;
+	margin-top: 2rem;
+	text-align: center;
+}
+.re_regist .btn_regist{
+	width: 90%;
+	height: 3rem;
+	line-height: 3rem;
+	display: block;
+	margin: 0 auto;
+	border-radius: 5px;
+    border:2px solid rgba(90, 198, 246, .8);
+	color: rgba(90, 198, 246);
+	font-size: 1.8rem;
 }
 </style>

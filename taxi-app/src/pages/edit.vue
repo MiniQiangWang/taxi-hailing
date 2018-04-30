@@ -2,7 +2,7 @@
   <div class="bank">
     <header>
       <div class="top_nav"> 
-      	<a class="header_left icon_left"></a>
+      	<a class="header_left icon_left" @touchend="gotoCenterPage"></a>
         <span class="sp_nav">编辑资料</span>
         <a class="hear_right">完成</a>
       </div>
@@ -60,16 +60,25 @@
 
 <script>
 export default {
-	
+	data () {
+		return {
+
+		}
+	},
+	methods: {
+		gotoCenterPage() {
+			console.log("跳到center");
+			this.$router.go(-1);
+		}
+	}
 }
 </script>
 
 <style scoped>
 .bank{
-		/* position: absolute; */
-		position:fixed;
-		top:0;
-		width:100%;
+	position:fixed;
+	top:0;
+	width:100%;
     height: 100%;
 }
 /*头部导航*/

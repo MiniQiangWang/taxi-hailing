@@ -55,7 +55,7 @@
     <!--模太框-->
     <div class="div_model animation01" v-show="showFlag">
       <div class="skid_bar">
-        <div class="user_portrait">
+        <div class="user_portrait" @touchend="showCenterPage">
           <span class="icon_portrait"><img src="../assets/icons/icon_portrait.png"></span>
           <span class="user_mame">张梅梅</span>
         </div>
@@ -115,7 +115,10 @@
       changeMapBtnFlag() {
         this.showIcon = !this.showIcon;
         this.mapBtnFlag = !this.mapBtnFlag;
-      }
+			},
+			showCenterPage() {
+				this.$router.push('/center');
+			}
     }
   }
 </script>

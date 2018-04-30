@@ -17,7 +17,7 @@ router.post('/login', function (req, res, next) {
     if(err) {
       res.json({
         status: "1",
-        msg: err.message
+        msg: err.message,
       })
     }else {
       if (doc) {
@@ -29,13 +29,24 @@ router.post('/login', function (req, res, next) {
           path: '/',
           maxAge: 1000*60
         });
+        res.cookie("personName", doc.personName, {//向cookie写数据
+          path: '/',
+          maxAge: 1000*60
+        });
         //req.session.user = doc;//获取用户信息
         res.json({
           status: "0",
           msg: "",
           result:{
-            userName: doc.userName
+            userName: doc.userName,
+            personName: doc.personName
           }
+        })
+      }else {
+        res.json({
+          status: "-1",
+          msg: '没有数据',
+          result:''
         })
       }
     }
@@ -59,7 +70,7 @@ router.get('/checklogin', function (req, res, next) {
     res.json({
       status:"0",
       msg: '',
-      result:req.cookies.userName || ''
+      result:req.cookies.personName || ''
     })
   }else{
     res.json({
@@ -69,5 +80,55 @@ router.get('/checklogin', function (req, res, next) {
     })
   }
 })
+
+router.post('/regist', function (req, res, next) {
+  User.findOne({userName:req.body.userName}, function (err, doc) {
+    if(doc) {
+      res.json({
+        status: '10',
+        msg: '账号已存在',
+      })
+    }else {
+      var param = {
+        userId: Date.now() + '',
+        userName: req.body.userName,
+        userPwd: req.body.userPwd,
+        personName: Date.now() + '',
+        sex: '未填写',
+        age: '未填写',
+        address: '未填写',
+        phone: '未填写',
+        occupation: '未填写'
+      }
+      let user = new User(param);
+      user.save(function (err) {
+      if(err) {
+        res.json({
+          status: "1",
+          msg: err.message,
+        })
+      }else {
+        User.findOne({userName:req.body.userName}, function (err, doc) {
+          if(err) {
+            res.json({
+              status:'1',
+              msg: err.message
+            })
+          }else {
+            res.json({
+              status:'0',
+              msg: '账号注册成功',
+              result: doc.userName
+            })
+          }
+        })
+      }
+    });
+  }
+})
+  
+  
+})
+
 
 module.exports = router;

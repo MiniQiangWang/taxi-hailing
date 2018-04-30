@@ -9,16 +9,13 @@ import Schedule from '@/pages/schedule'
 import Wallet from '@/pages/wallet'
 import CityChoice from '@/pages/cityChoice'
 import Search from '@/pages/search'
+import RegistSuccess from '@/pages/registSuccess'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
-    {
-      path: '/',
-      name: 'Main',
-      component: Main
-    },
+    { path: '/', redirect: '/user' },
     {
       path:'/home',
       name: 'HomePage',
@@ -28,6 +25,11 @@ export default new Router({
       path:'/user',
       name: 'Login',
       component: Login
+    },
+    {
+      path:'/registSuccess',
+      name: 'RegistSuccess',
+      component:RegistSuccess
     },
     {
       path:'/edit',

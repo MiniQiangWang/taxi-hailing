@@ -26,7 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //   if(req.cookies.userId) {
 //     next();
 //   }else {
-//     if(req.originalUrl == '/users/login' || req.originalUrl == '/users/logout' || req.originalUrl == '/users/checklogin' || req.path == '/users/list') {
+//     if(req.originalUrl == '/users/login' || req.originalUrl == '/users/logout' || req.originalUrl == '/users/checklogin') {
 //       res.json({
 //         status: "10001",
 //         msg: '当前未登录',

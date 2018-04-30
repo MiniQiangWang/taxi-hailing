@@ -1,35 +1,63 @@
 <template>
   <div class="bg_bank">
-    <a class="re_bank" href="###"></a>
-		<div class="re_min_infor">
+    <!-- <a class="re_bank" href="###"></a> -->
+		<div class="re_min_infor" v-show="loginOrRegistFlag">
       <!-- <div class="re_logo"><img src="../assets/images/logo.png"></div> -->
-      <div class="bg_color" v-if="loginModelFlag">
+      <div class="bg_color">
         <div class="re_min">
             <span class="icon_phone"></span>
-            <input class="input01" id="phone" name="phone" type="text" placeholder="账号" v-model="userName" pattern="(\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$" /><div id="div1"></div>
+            <input class="input01" name="phone" type="text" placeholder="账号" v-model="userName"/><div id="div1"></div>
         </div>
         <div class="re_min">
             <span class="icon_passwarde"></span>
-            <input class="input01"  id="password" name="password" type="password" placeholder="密码" v-model="userPwd"/>
-            <!-- <span class="the_eyes"></span> -->
+            <input v-if="pwdType==='password'" class="input01" type="password" placeholder="密码" v-model="userPwd"/>
+            <input v-if="pwdType==='text'" class="input01" type="text" placeholder="密码" v-model="userPwd"/>
+            <span class="the_eyes" :class="eyesClass" @touchend="changeEyesType"></span>
         </div>
         <div class="error-show" v-show="errorTip">用户名或密码错误</div>
         <!-- <div class="re_min"> -->
             <!-- <span class="icon_vf_code"></span> -->
             <!-- <input class="input01 login_btn" id="code" name="code" type="text" placeholder="请输入验证码" onkeyup="chkCode(this)"/> -->
-            <!-- <input class="reto_code" id="btn" onclick="settime(this)" value="发送验证码"/> -->
+            <!-- <input class="reto_code" id="btn" ontouchend="settime(this)" value="发送验证码"/> -->
         <!-- </div> -->
       </div>
       <div class="re_regist">
-          <a class="btn_regist" id="login" @click="login">登录</a>
-      </div>
-      <div class="re_regist">
-          <a class="btn_regist" id="login" @click="logOut" v-if="!loginModelFlag"><span v-text="nickName"></span></a>
+          <a class="btn_regist" id="login" @touchend="login">登录</a>
       </div>
       <div class="re_regist02">
-          <a class="" >立即注册</a>
+          <a class="" @touchend="changeLRFlag">没有账号？立即注册</a>
       </div>
     </div>
+
+    <div class="re_min_infor" v-show="!loginOrRegistFlag">
+      <!-- <div class="re_logo"><img src="../assets/images/logo.png"></div> -->
+      <div class="bg_color">
+        <div class="re_min">
+            <span class="icon_phone"></span>
+            <input class="input01" name="phone" type="text" placeholder="您要注册的账号" v-model="rUserName"/><div id="div1"></div>
+        </div>
+        <div class="re_min">
+            <span class="icon_passwarde"></span>
+            <input class="input01" name="password" type="password" placeholder="输入密码" v-model="rUserPwd"/>
+            <span class="the_eyes"></span>
+        </div>
+        <div class="re_min">
+            <span class="icon_passwarde"></span>
+            <input class="input01" name="password" type="password" placeholder="确认密码" v-model="rSecondUserPwd"/>
+            <span class="the_eyes"></span>
+        </div>
+        <div class="error-show" v-show="equalTip">两次输入的密码不一致</div>
+        <div class="error-show" v-show="userExistedTip">账号已存在，请重新输入</div>
+      </div>
+      <div class="re_regist">
+          <a class="btn_regist" id="regist" @touchend="regist">注册</a>
+      </div>
+      <div class="re_regist02">
+          <a class="" @touchend="changeLRFlag">已有账号，返回登陆</a>
+      </div>
+      <div class="r-mask" ></div>
+    </div>
+    
   </div>
 </template>
 
@@ -40,25 +68,60 @@
     },
     data() {
       return {
-        "userName":'',
-        "userPwd":'',
-        "errorTip":false,
-        "loginModelFlag":true,
-        "nickName":''
+        loginOrRegistFlag:true,
+        userName:'',
+        userPwd:'',
+        errorTip:false,
+        rUserName:'',
+        rUserPwd:'',
+        rSecondUserPwd:'',
+        equalTip: false,
+        userExistedTip:false,
+        pwdType:'password'
       }
     },
     mounted() {
-      this.checkLogin();
+     
+    },
+    computed: {
+      eyesClass() {
+        return {
+         "the_eyes_close":  this.pwdType === 'password',
+         "the_eyes_open":  this.pwdType === 'text'
+        }
+      }
     },
     methods: {
-      checkLogin() {
-        axios.get('/users/checklogin').then((response)=>{
-          let res = response.data;
-          if(res.status == '0') {
-            this.nickName = res.result.userName;
-            this.loginModelFlag = false;
-          }
-        });
+      changeEyesType(){
+        this.pwdType = this.pwdType==='password'?'text':'password';
+      },
+      changeLRFlag() {
+        this.loginOrRegistFlag = !this.loginOrRegistFlag;
+      },
+      regist () {
+        if(this.rUserPwd !== this.rSecondUserPwd) {
+          this.equalTip = true;
+          this.userExistedTip=false;
+        }else {
+            this.equalTip = false;
+            axios.post('/users/regist', {
+            userName: this.rUserName,
+            userPwd: this.rUserPwd
+          })
+          .then((response)=>{
+            let res = response.data;
+            if(res.status == '0'){
+              this.$router.push('/registSuccess');
+            }else if (res.status == '10'){
+              this.userExistedTip=true;
+            }
+            else{
+              this.equalTip = true;
+              alert('qubudao')
+            }
+          })
+        }
+        
       },
       login() {
         if(!this.userName || !this.userPwd) {
@@ -71,20 +134,10 @@
         }).then((response)=>{
           let res = response.data;
           if(res.status == '0'){
+            this.$router.push('/home');
             this.errorTip = false;
-            this.loginModelFlag = false;
-            this.nickName = res.result; 
           }else{
             this.errorTip = true;
-          }
-        })
-      },
-      logOut() {
-        this.loginModelFlag=true;
-        axios.post('/users/logout').then((response)=>{
-          let res = response.data;
-          if(res.status == "0") {
-            this.nickName = '';
           }
         })
       }
@@ -215,8 +268,13 @@
     display: block;
     right: 0;
     font-size: 1rem;
-    background: url(../assets/icons/icon_close_eyes.png) no-repeat center;
     background-size: 50%;
+}
+.the_eyes_close {
+  background: url(../assets/icons/icon_close_eyes.png) no-repeat center;
+}
+.the_eyes_open {
+  background: url(../assets/icons/icon_open_eyes.png) no-repeat center;
 }
 .re_regist02 {
     width: 100%;
@@ -226,5 +284,12 @@
 }
 .re_regist02 a{
 	text-decoration: underline;
+}
+.r-mask {
+  position: relative;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0, .5);
+  z-index: 1000;
 }
 </style>
