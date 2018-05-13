@@ -10,7 +10,8 @@ var userLoginSchema = new Schema({
     age: String,
     address: String,
     phone: String,
-    occupation: String
+    occupation: String,
+    discription: String
 });
 
 module.exports = mongoose.model('User',userLoginSchema);

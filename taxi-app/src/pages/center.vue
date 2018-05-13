@@ -4,9 +4,8 @@
       <div class="top_nav"> 
       	<a class="header_left icon_left" @click="backToHome"></a>
         <span class="sp_nav">个人中心</span>
-        <a class="hear_right" @touchend="gotoEditPage">编辑</a>
+        <a class="hear_right" @click="gotoEditPage">编辑</a>
       </div>
-      <div class="top_as"></div>
     </header>
     <!--头部结束-->
     
@@ -14,20 +13,40 @@
     <div class="personal_min">
       <div class="det_user_phone">
         <span class="user_portrait03"><img src="../assets/icons/icon_portrait.png"></span>
-        <span class="user_name03">{{nickName}}</span>
+        <span class="user_name03">{{userMsg.personName}}</span>
       </div>
-      <div class="user_aut">
-        <div class="iconatt">
-          <span class="real_name">实名认证</span>
-          <span class="icon_atted">已认证</span>
+   	  <div class="user_aut">
+   		<ul>
+   			<li>
+   				<span>账号</span><span v-text="userMsg.userName"></span>
+   			</li>
+   			<li>
+   				<span>性别</span><span v-text="userMsg.sex"></span>
+   			</li>
+   			<li>
+   				<span>年龄</span><span v-text="userMsg.age"></span>
+   			</li>
+   			<li>
+   				<span>职业</span><span v-text="userMsg.occupation"></span>
+   			</li>
+            <li>
+   				<span>个性签名</span><span v-text="userMsg.discription"></span>
+   			</li>
+   		</ul>
+   		<ul>
+   			<li>
+   				<span>住址</span><span v-text="userMsg.address"></span>
+   			</li>
+   			<li>
+   				<span>手机号</span><span v-text="userMsg.phone"></span>
+   			</li>
+   		</ul>
+        <div class="ch_password">
+          <a class="btn_ch">修改密码</a>
         </div>
-        <div class="iconatt">
-          <span class="car_atted">车主认证</span>
-          <span class="icon_not_atted">未认证</span>
-   	    </div>
    	  </div>
       <div class="re_regist">
-          <a class="btn_regist" id="regist" @touchend="logOut">退出登陆</a>
+          <a class="btn_regist" id="regist" @click="logOut">退出登陆</a>
       </div>
     </div>
   </div>
@@ -35,14 +54,22 @@
 
 <script>
 import axios from 'axios'
+import {mapState} from 'vuex'
 export default {
   data() {
     return {
-        nickName:'',
+        
     }
   },
   mounted() {
       this.checkLogin();
+  },
+  computed: {
+    ...mapState({
+        userMsg: state => {
+			return state.login.userMsg
+        }
+    })
   },
   methods: {
     backToHome () {
@@ -65,11 +92,11 @@ export default {
         })
     },
     checkLogin() {
-        axios.get('/users/checklogin').then((response)=>{
+        axios.post('/users/checklogin').then((response)=>{
             let res = response.data;
             if(res.status == '0') {
-                console.log('已登陆',res);
-                this.nickName = res.result;
+                // console.log(res.result);
+                this.$store.commit('initUserInfo', res.result);
             }
         });
     },
@@ -167,46 +194,33 @@ header{
 	width: 75%;
 	padding: 1rem 2rem;
 	box-shadow: 0px 2px 2px 2px #e3e3e3;
+    margin: 0 auto;
+    font-size: 1.8rem;
+}
+.user_aut li {
+    margin: .5rem 0;
+}
+.user_aut li span{
+    display: inline-block;
+}
+.user_aut li span:first-child {
+    width: 7rem;
+}
+.ch_password {
+    width: 100%;
+    text-align: center;
+    background: #ffe;
+}
+.ch_password .btn_ch {
+    width: 100%;
+	height: 2rem;
+	line-height: 2rem;
+	display: block;
 	margin: 0 auto;
+    border:1px solid #eee;
+	color: #bbb;
+	font-size: 1.3rem;
 }
-.user_aut .iconatt{
-	overflow: hidden;
-	line-height: 3rem;
-	color: #555;
-	font-size: 1.5rem;
-	font-weight: bold;
-}
-.user_aut .iconatt span{
-	height: 3rem;
-	line-height: 3rem;
-	display: inline-block;
-}
-.user_aut .iconatt .real_name{
-	float: left;
-	padding-left: 2rem;
-	background: url(../assets/images/real_name.png) no-repeat left;
-	background-size: 20%;
-}
-.user_aut .iconatt .icon_atted{
-	float: right;
-	padding-left: 1.5rem;
-	background: url(../assets/icons/icon_atted.png) no-repeat left;
-	background-size: 20%;
-}
-.user_aut .iconatt .car_atted{
-	float: left;
-	padding-left: 2rem;
-	background: url(../assets/images/car_atted.png) no-repeat left;
-	background-size: 20%;
-	
-}
-.user_aut .iconatt .icon_not_atted{
-	float: right;
-	padding-left: 1.5rem;
-	background: url(../assets/icons/icon_not_atted.png) no-repeat left;
-	background-size: 20%;
-}
-
 .re_regist{
 	width: 100%;
 	margin-top: 2rem;

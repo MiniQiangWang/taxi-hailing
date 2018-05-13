@@ -11,8 +11,6 @@ router.post('/login', function (req, res, next) {
     userName: req.body.userName,
     userPwd: req.body.userPwd
   }
-
-  console.log("11111",param.userName);
   User.findOne(param, function (err, doc) {
     if(err) {
       res.json({
@@ -23,23 +21,22 @@ router.post('/login', function (req, res, next) {
       if (doc) {
         res.cookie("userId", doc.userId, {//向cookie写数据
           path: '/',
-          maxAge: 1000*60
-        });
-        res.cookie("userName", doc.userName, {//向cookie写数据
-          path: '/',
-          maxAge: 1000*60
-        });
-        res.cookie("personName", doc.personName, {//向cookie写数据
-          path: '/',
-          maxAge: 1000*60
+          maxAge: 1000*60*60
         });
         //req.session.user = doc;//获取用户信息
         res.json({
           status: "0",
           msg: "",
           result:{
-            userName: doc.userName,
-            personName: doc.personName
+            userId:doc.userId,
+            userName:doc.userName,
+            personName:doc.personName,
+            sex:doc.sex,
+            age:doc.age,
+            address:doc.address,
+            phone:doc.phone,
+            occupation:doc.occupation,
+            discription:doc.discription
           }
         })
       }else {
@@ -51,7 +48,7 @@ router.post('/login', function (req, res, next) {
       }
     }
   });
-})
+});
 
 router.post('/logout', function (req, res, next) {
   res.cookie("userId", "", {
@@ -65,12 +62,32 @@ router.post('/logout', function (req, res, next) {
   })
 })
 
-router.get('/checklogin', function (req, res, next) {
+router.post('/checklogin', function (req, res, next) {
   if(req.cookies.userId) {
-    res.json({
-      status:"0",
-      msg: '',
-      result:req.cookies.personName || ''
+    User.findOne({userId:req.cookies.userId}, function (err, doc) {
+      if(err) {
+        res.json({
+          status:'1',
+          msg: err.message,
+          result:''
+        })
+      }else {
+        res.json({
+          status:'0',
+          msg: '',
+          result: {
+            userId:doc.userId,
+            userName:doc.userName,
+            personName:doc.personName,
+            sex:doc.sex,
+            age:doc.age,
+            address:doc.address,
+            phone:doc.phone,
+            occupation:doc.occupation,
+            discription:doc.discription
+          }
+        })
+      }
     })
   }else{
     res.json({
@@ -82,53 +99,104 @@ router.get('/checklogin', function (req, res, next) {
 })
 
 router.post('/regist', function (req, res, next) {
-  User.findOne({userName:req.body.userName}, function (err, doc) {
-    if(doc) {
-      res.json({
-        status: '10',
-        msg: '账号已存在',
-      })
-    }else {
-      var param = {
-        userId: Date.now() + '',
-        userName: req.body.userName,
-        userPwd: req.body.userPwd,
-        personName: Date.now() + '',
-        sex: '未填写',
-        age: '未填写',
-        address: '未填写',
-        phone: '未填写',
-        occupation: '未填写'
-      }
-      let user = new User(param);
-      user.save(function (err) {
-      if(err) {
+    User.findOne({userName:req.body.userName}, function (err, doc) {
+      if(doc) {
         res.json({
-          status: "1",
-          msg: err.message,
+          status: '10',
+          msg: '账号已存在',
         })
       }else {
-        User.findOne({userName:req.body.userName}, function (err, doc) {
-          if(err) {
-            res.json({
-              status:'1',
-              msg: err.message
-            })
-          }else {
-            res.json({
-              status:'0',
-              msg: '账号注册成功',
-              result: doc.userName
-            })
-          }
-        })
-      }
-    });
-  }
+        var newDate = new Date();
+        var param = {
+          userId: Date.now() + '',
+          userName: req.body.userName,
+          userPwd: req.body.userPwd,
+          personName: '用户_'+ newDate.getFullYear() + (newDate.getMonth()+1) + newDate.getDay() + req.body.userName,
+          sex: '',
+          age: '',
+          address: '',
+          phone: '',
+          occupation: '',
+          discription: ''
+        }
+        let user = new User(param);
+        user.save(function (err) {
+        if(err) {
+          res.json({
+            status: "1",
+            msg: err.message,
+          })
+        }else {
+          User.findOne({userName:req.body.userName}, function (err, doc) {
+            if(err) {
+              res.json({
+                status:'1',
+                msg: err.message
+              })
+            }else {
+              res.json({
+                status:'0',
+                msg: '账号注册成功',
+                result: doc.userName
+              })
+            }
+          })
+        }
+      });
+    }
+  })
+})
+
+router.post('/update', function (req,res,next) {
+  User.findOne({userName:req.body.userName}, function (err, doc) {
+    if(err) {
+      res.json({
+        status:'1',
+        msg: 'cuocuocuo',
+        result:''
+      })
+    }else {
+      User.update({userName: req.body.userName}, req.body.valueMsg, function (err) {
+        if(err) {
+          res.json({
+            status:'02',
+            msg:err.message
+          });
+        }else {
+          User.findOne({personName: req.body.valueMsg.personName},function (err, doc) {
+            console.log(doc.personName);
+            console.log(req.body.valueMsg.personName)
+            if(doc.personName !== req.body.valueMsg.personName) {
+              res.json({
+                status:'0',
+                msg:'success',
+                result: doc
+              })
+              
+            }else {
+              res.json({
+                status:'0',
+                msg: '没更新成功',
+                result:''
+              })
+            }
+          })
+        }
+      })
+    }
+  })
 })
   
+
+// router.post('/update', function (req,res,next) {
   
-})
+//   console.log('ooooooooname');
+//   User.update({
+//     userName:req.body.userName
+//   },
+//   {address:'jaohgbg n'}, 
+//   function (err) {})
+// });
 
 
 module.exports = router;

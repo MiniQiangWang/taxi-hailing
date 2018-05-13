@@ -3,7 +3,7 @@
     <header>
       <div class="top_nav"> 
       	<a class="header_left icon_personal" @click="changeShowFlag"></a>
-        <span class="sp_nav">地图待开发</span>
+        <span class="sp_nav"><strong>{{localCity !== '' ? localCity: "定位中..."}}</strong></span>
         <a class="hear_right icon_package"></a>
       </div>
       <div class="top_as"></div>
@@ -11,53 +11,43 @@
     <!--头部结束-->
     
     <!--内容开始-->
-    <div class="div_map">
+		<div class="map" id="l-map" ref="lmap"></div>
+
+    <div class="div_map" v-show="true">
     	<div class="map_infor">
     		<div class="map_min">
     			<span class="icon_blue"></span>
-    			<input type="text" class="input01" placeholder="初始地（跳转search）"/>
+    			<input type="text" id="startId" ref="startId" size="20" value="" placeholder="请输入上车点" style="width:23rem;" />
+					<div id="searchStartPanel" style="position:fixed;top:6rem;border:1px solid #C0C0C0;width:150px;height:3rem; display:none;"></div>
     		</div>
     		<div class="map_min">
     			<span class="icon_org"></span>
-    			<input type="text" class="input01" placeholder="请输入目的地（跳转search）"/>
+    			<input type="text" id="endId" ref="endId" size="20" value="" placeholder="请目的地" style="width:23rem;" />
+					<div id="searchEndPanel" style="position:fixed;top:6rem;border:1px solid #C0C0C0;width:150px;height:3rem; display:none;"></div>
     		</div>
-    		<div class="map_div01">
+    		
+    		<div class="div_display"  v-show="mapBtnFlag">
+					<div class="map_div01">
 					<!-- <span>是否与附近的人拼车</span> -->
     			<select>
-    				<option>出租车</option>
+    				<option>是否拼车</option>
     				<option>快车</option>
     			</select>
     		</div>
-    		<div class="div_display"  v-show="mapBtnFlag">
-          <div class="map_div02">
-            <select>
-              <option>5/24</option>
-            </select>
-            <select>
-              <option>12点</option>
-            </select>
-            <select>
-              <option>26分</option>
-            </select>
-          </div>
-          <div class="map_div01">
-            <span class="span01">自己乘车</span>
-            <a class="a_jiaoche">与人拼车</a>
-          </div>
     		</div>
     		<div v-bind:class="[showIcon ? iconDropUp : iconDropDown, ]" @click="changeMapBtnFlag"></div>
     	</div>
     	<div class="div_map_btn">
-    		<a class="call_car">立即叫车</a>
+    		<a class="call_car" @click="callACar">立即叫车</a>
     	</div>
     </div>
     <!--内容结束-->
     <!--模太框-->
     <div class="div_model animation01" v-show="showFlag">
       <div class="skid_bar">
-        <div class="user_portrait" @touchend="showCenterPage">
+        <div class="user_portrait" @click="showCenterPage">
           <span class="icon_portrait"><img src="../assets/icons/icon_portrait.png"></span>
-          <span class="user_mame">张梅梅</span>
+          <span class="user_mame">{{personName}}</span>
         </div>
         <div class="personal_data">
           <ul>
@@ -94,6 +84,7 @@
 </template>
 
 <script>
+	import BMap from 'BMap';
   export default {
     components: {
 
@@ -105,9 +96,149 @@
         mapBtnFlag: false,
         showIcon: true,
         iconDropUp:"icon-drop-up",
-        iconDropDown:"icon-drop-down"
+				iconDropDown:"icon-drop-down",
+				initPoint:'',
+				localCity:'',
+				// map : new BMap.Map("l-map",{minZoom:16,maxZoom:16}),
+				// point : new BMap.Point(11.331398,39.897445)
+				//myMap: '',
+				startPoint:'',
+				endPoint:'',
+				startPointNum:{},
+				endPointNum:{}
       }
-    },
+		},
+		computed: {
+			personName() {
+				return this.$store.state.login.userMsg.personName
+			}
+		},
+		mounted() {
+			//********************生成地图
+			var lmap = this.$refs.lmap;
+			var map = new BMap.Map(lmap,{minZoom:6,maxZoom:17});
+			var point = new BMap.Point(116.331398,39.897445);
+			map.centerAndZoom(point,12);
+			// this.myMap = map;
+			let _this = this;
+			// **********************浏览器定位
+			var geolocation = new BMap.Geolocation();
+			
+			geolocation.getCurrentPosition(function(r){
+				if(this.getStatus() == BMAP_STATUS_SUCCESS){
+					_this.localCity = r.address.city;
+					var mk = new BMap.Marker(r.point);
+					
+					_this.initPoint = r.point;
+					
+					map.addOverlay(mk);
+					// 将地图的中心点更改为给定的点
+					map.panTo(r.point);
+				}else {
+					alert('failed'+this.getStatus());
+				}        
+			});
+			
+
+		// 	//*********************关键字索引框
+
+			function G(id) {
+				return document.getElementById(id);
+			}
+
+			var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
+				{
+					"input" : "startId",
+					"location" : map
+				});
+				var bc = new BMap.Autocomplete(    //建立一个自动完成的对象
+				{
+					"input" : "endId",
+					"location" : map
+				});
+
+			var myValue;
+			// 测试
+			ac.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
+				
+				var localSearch = new BMap.LocalSearch(map);
+				localSearch.enableAutoViewport(); //允许自动调节窗体大小
+				
+				var _value = e.item.value;
+				myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+
+				searchByStationName();
+				function searchByStationName() {
+				　　var keyword = myValue;
+				　　localSearch.setSearchCompleteCallback(function (searchResult) {
+				　　　　var poi = searchResult.getPoi(0);
+				　　　　_this.startPointNum.lng = poi.point.lng;
+						   _this.startPointNum.lat = poi.point.lat;
+				　　});
+				　　localSearch.search(keyword);
+				}
+
+				G("searchStartPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+				_this.startPoint = myValue;
+				console.log(_this.startPoint)
+				if(!_this.$refs.endId.value) {
+					setPlace();
+				}else {
+					drawRoute();
+				}
+			});
+			bc.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
+				var _value = e.item.value;
+				myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+				G("searchEndPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+				_this.endPoint = myValue;
+				console.log(_this.endPoint)
+				if(!_this.$refs.startId.value) {
+					setPlace();
+				}else {
+					drawRoute();
+				}
+				
+			});
+			function setPlace(){
+				map.clearOverlays();    //清除地图上所有覆盖物
+				function myFun(){
+					var pp = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
+					map.centerAndZoom(pp, 18);
+					map.addOverlay(new BMap.Marker(pp));    //添加标注
+				}
+				var local = new BMap.LocalSearch(map, { //智能搜索
+					onSearchComplete: myFun
+				});
+				local.search(myValue);
+			}
+			function drawRoute () {
+				var p1 = new BMap.Point(116.301934,39.977552);
+				var p2 = new BMap.Point(116.508328,39.919141);
+
+				console.log(_this.startPoint,_this.endPoint,"111",p1,p2);
+				var driving = new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true},
+					onPolylinesSet:function(routes) { 
+            searchRoute = routes[0].getPolyline();//导航路线
+            map.addOverlay(searchRoute); 
+					}, 
+					onMarkersSet:function(routes) {
+							map.removeOverlay(routes[0].marker); //删除起点
+								map.removeOverlay(routes[1].marker);//删除终点
+					}
+        });
+				driving.search(_this.startPoint,_this.endPoint);
+			}
+
+
+			// ***********************地图点击事件
+			// function showInfo(e){
+			// 	console.log(e.point.lng + ", " + e.point.lat);
+			// 	_this.startPointNum.lng = e.point.lng;
+			// 	_this.startPointNum.lat = e.point.lat;
+			// }
+			// map.addEventListener("click", showInfo);
+		},
     methods: {
       changeShowFlag() {
         this.showFlag = !this.showFlag;
@@ -118,6 +249,9 @@
 			},
 			showCenterPage() {
 				this.$router.push('/center');
+			},
+			callACar() {
+				
 			}
     }
   }
@@ -126,6 +260,19 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 /*头部导航*/
+#l-map {
+	position: fixed;
+	height: 90%;
+	width: 100%;
+	z-index:1;
+}
+#r-result{
+	position: fixed;
+	top: 5rem;
+	width: 30rem;
+	height: 4rem;
+	background:red;
+}
 .bank{
   position: fixed;
   width: 100%;
@@ -175,21 +322,22 @@ header{
 /*导航结束*/ 
 
 .div_map{
+	position: absolute;
+	top: 2rem;
 	width: 100%;
-	height: 100%;
-	background: url(../assets/images/map.png) no-repeat top;
 	background-size: 100%;
+	z-index:100;
 }
 .map_infor{
-	width: 75%;
-    padding-top: 10px;
-    padding-bottom: 25px;
-    background: #fff;
-    margin: 0 auto;
-    position: relative;
-    top: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 3px 2px 2px #e3e3e3;
+	width: 85%;
+	padding-top: 10px;
+	padding-bottom: 25px;
+	background: #fff;
+	margin: 0 auto;
+	position: relative;
+	top: 20px;
+	border-radius: 10px;
+	box-shadow: 0px 3px 2px 2px #e3e3e3;
 }
 .map_min{
 	border-bottom: 1px solid #f4f4f5;

@@ -3,53 +3,61 @@
     <header v-show="headerShowTip">
       <div class="top_nav"> 
       	<a class="header_left icon_left" @click="gotoCenterPage"></a>
-        <span class="sp_nav">编辑资料</span>
-        <a class="hear_right" @click="finish">完成</a>
+        <span class="sp_nav">订单详情</span>
       </div>
     </header>
     <!--头部结束-->
-    <div class="bg_bank" v-show="!headerShowTip">
-      <a class="btn-login" @click="showMask"><span>继续编辑</span></a>
-	  <a class="btn-login" @click="finish"><span>保存资料</span></a>
-  	</div>
     <!--内容开始-->
     <div class="data_min bgbody">
       <div class="det_user_phone">
-        <span class="user_portrait02"><img src="../assets/icons/icon_portrait.png"></span>
-        <span class="user_name02">修改头像</span>
       </div>
    	  <div class="user_list_infor">
    		<ul>
 			<li>
-   				<span>昵称</span>
-   				<input type="text" class="input01" ref="personName" :placeholder="userMsg.personName || '未填写'" :value="userMsg.personName"/>
+   				<span>司机</span>
+   				<span>张胖胖</span>
+   			</li>
+            <li>
+   				<span>车型</span>
+   				<span>奥迪A8-黑色</span>
+   			</li>
+            <li>
+   				<span>车牌号</span>
+   				<span>黑A-K7777</span>
    			</li>
    			<li>
-   				<span>性别</span>
-   				<input type="text" class="input01" ref="sex" :placeholder="userMsg.sex || '未填写'" :value="userMsg.sex"/>
+   				<span>时间</span>
+   				<span>5月4日 8:30</span>
+   			</li>
+            <li>
+   				<span>金额</span>
+   				<span>17.6元</span>
    			</li>
    			<li>
-   				<span>年龄</span>
-   				<input type="text" class="input01" ref="age" :placeholder="userMsg.age || '未填写'" :value="userMsg.age"/>
+   				<span>起点</span>
+   				<span>黑龙江大学</span>
    			</li>
    			<li>
-   				<span>职业</span>
-   				<input type="text" class="input01" ref="occupation" :placeholder="userMsg.occupation || '未填写'" :value="userMsg.occupation"/>
+   				<span>终点</span>
+   				<span>哈尔滨西站</span>
    			</li>
 			<li>
-   				<span>个性签名</span>
-   				<input type="text" class="input01" ref="discription" :placeholder="userMsg.discription || '未填写'" :value="userMsg.discription"/>
+   				<span>里程</span>
+   				<span>3.8km</span>
+   			</li>
+            <li>
+   				<span>时长</span>
+   				<span>18分钟</span>
+   			</li>
+            <li>
+   				<span>手机号</span>
+   				<span>13088886666</span>
    			</li>
    		</ul>
    		<ul>
    			<li>
-   				<span>住址</span>
-   				<input type="text" class="input01" ref="address" :placeholder="userMsg.address || '未填写'" :value="userMsg.address"/>
-   			</li>
-   			<li>
-   				<span>手机号</span>
-   				<input type="text" class="input01" ref="phone" :placeholder="userMsg.phone || '未填写'" :value="userMsg.phone"/>
-   			</li>
+                   <span>评价</span><span>棒棒哒</span>
+               </li>
    		</ul>
    	  </div>
     </div>
@@ -62,46 +70,16 @@ console.log(mapState)
 export default {
 	data () {
 		return {
-			headerShowTip:true
 		}
 	},
 	computed: {
-		...mapState({
-			userMsg:state => {
-				return state.login.userMsg
-			},
-			editExitTip: state => {
-				return state.login.editExitTip
-			}
-		})
   },
 	methods: {
 		gotoCenterPage() {
-			console.log("跳到center");
 			this.$router.go(-1);
-		}, 
-		showMask() {
-			this.headerShowTip = !this.headerShowTip;
-		},
-		finish() {
-			// 
-			var valueMsg = {
-				personName:this.$refs.personName.value,
-				sex: this.$refs.sex.value,
-				age:this.$refs.age.value,
-				occupation: this.$refs.occupation.value,
-				discription: this.$refs.discription.value,
-				address: this.$refs.address.value,
-				phone: this.$refs.phone.value
-			}
-			console.log(valueMsg)
-			this.$store.commit("changeUserInfo", valueMsg);
-			if(this.editExitTip == true) {
-				this.$store.commit('changeEditExitTip', false);
-				this.$router.push('/center');
-			}
-			
 		}
+
+		
 	}
 }
 </script>
@@ -128,7 +106,7 @@ export default {
   .btn-login {
       width: 40%;
       background: #fff;
-      color: #000;
+      color: #eee;
     height: 4rem;
 	line-height: 4rem;
     text-align: center;
@@ -211,7 +189,7 @@ header{
 	height: 6rem;
 	line-height: 6rem;
 	padding-left: 2rem;
-	color: #2a2a2a;
+	color: #bbb;
 	font-size: 1.7rem;
 }
 .user_list_infor{
@@ -225,17 +203,12 @@ header{
 	padding-left: 2rem;
 	height: 3.5rem;
 	line-height: 3.5rem;
-	color: #2A2A2A;
+	color: #666;
 	border-bottom: 1px solid #F7F7F7;
 	font-size: 1.5rem;
 }
-.user_list_infor ul li input {
-	line-height: 1.5rem;
-	font-size:1.5rem;
-	margin: 0.3rem 0;
-}
 .user_list_infor ul li span:first-child{
-	width: 6rem;
+	width: 7rem;
 	display: inline-block;
 }
 </style>

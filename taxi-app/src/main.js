@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import Mint from 'mint-ui'
+import store from './store/index.js'
 import 'mint-ui/lib/style.css'
 
 // Vue.use(Mint);
@@ -23,6 +24,19 @@ Vue.component(TabItem.name, TabItem);
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })
+
+// router.beforeEach((to, from, next) => {
+//   if (to.path === '/login') {
+//     next()
+//   } else {
+//     if (!store.state.user) {
+//       next({ path: '/login' })
+//     } else {
+//       next()
+//     }
+//   }
+// })

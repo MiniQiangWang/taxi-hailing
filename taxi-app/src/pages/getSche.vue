@@ -4,7 +4,7 @@
 	<header>
       <div class="top_nav"> 
       	<a class="header_left icon_left"></a>
-        <span class="sp_nav">我的行程</span>
+        <span class="sp_nav">附近乘客</span>
       </div>
       <div class="top_as"></div>
     </header>
@@ -13,29 +13,49 @@
     <!--内容开始-->
 	<div class="schedule_min bgbody">
 		<div class="div_nav">
-			<span class="">已评价</span>
-			<span class="span_active">待评价</span>
 		</div>
 		<div class="cardInfo_content">
 			<div class="con_div001">
 				<ul>
 					<li>
-						<div><span class="kuaiche">拼车</span><a class="pingjia">待评价</a></div>
-						<div><span class="icon_time"></span>今天  08:38</div>
-						<div><span class="icon_blue"></span>哈尔滨市黑龙江大学正门</div>
+						<div><span class="kuaiche">拼车</span></div>
+						<div><span class="icon_time"></span>下单时间  08:38</div>
+						<div><span class="icon_blue"></span>哈尔滨市黑龙江大学正门A区正门学府路</div>
 						<div><span class="icon_org"></span>哈尔滨市哈尔滨西火车站</div>
+                        <button>接单</button>
 					</li>
 					<li>
-						<div><span class="kuaiche">不拼车</span><a class="pingjia">已评价</a></div>
-						<div><span class="icon_time"></span>5月4日  09:38</div>
-						<div><span class="icon_blue"></span>哈尔滨市黑龙江大学正门</div>
+						<div><span class="kuaiche">不拼车</span></div>
+						<div><span class="icon_time"></span>下单时间  08:38</div>
+						<div><span class="icon_blue"></span>哈尔滨市黑龙江大学正门A区正门学府路</div>
 						<div><span class="icon_org"></span>哈尔滨市哈西服装城北门</div>
+                        <button>接单</button>
 					</li>
 					<li>
-						<div><span class="kuaiche">不拼车</span><a class="pingjia">已评价</a></div>
-						<div><span class="icon_time"></span>5月6日  08:38</div>
-						<div><span class="icon_blue"></span>哈尔滨市黑龙江大学正门</div>
+						<div><span class="kuaiche">拼车</span></div>
+						<div><span class="icon_time"></span>下单时间  08:38</div>
+						<div><span class="icon_blue"></span>哈尔滨市黑龙江大学A区正门学府路</div>
 						<div><span class="icon_org"></span>哈尔滨市哈尔滨西火车站</div>
+                        <button>接单</button>
+					</li>
+                    <li>
+						<div><span class="kuaiche">不拼车</span></div>
+						<div><span class="icon_time"></span>下单时间  08:38</div>
+						<div><span class="icon_blue"></span>哈尔滨市黑龙江大学正门A区正门学府路</div>
+						<div><span class="icon_org"></span>哈尔滨市哈尔滨西火车站</div>
+                        <button>接单</button>
+					</li><li>
+						<div><span class="kuaiche">拼车</span></div>
+						<div><span class="icon_time"></span>下单时间  08:38</div>
+						<div><span class="icon_blue"></span>哈尔滨市黑龙江大学正门A区正门学府路</div>
+						<div><span class="icon_org"></span>哈尔滨市哈尔滨西火车站</div>
+                        <button>接单</button>
+					</li><li>
+						<div><span class="kuaiche">不拼车</span></div>
+						<div><span class="icon_time"></span>下单时间  08:38</div>
+						<div><span class="icon_blue"></span>哈尔滨市黑龙江大学正门A区正门学府路</div>
+						<div><span class="icon_org"></span>哈尔滨市哈尔滨西火车站</div>
+                        <button>接单</button>
 					</li>
 				</ul>
 			</div>
@@ -146,7 +166,18 @@ header{
 	border-radius: 10px;
 	box-shadow: 0px 2px 2px 2px #efefef;
 	line-height: 2rem;
-	padding: 1rem;
+	padding: 0.5rem;
+}
+.cardInfo_content .con_div001 li div{
+    float: left;
+}
+.cardInfo_content .con_div001 li button{
+    float:right;
+    width: 6rem;
+    height: 4rem;
+    background: rgb(25, 166, 190);
+    color:#fff;
+    border-radius: 0.6rem;
 }
 .cardInfo_content .con_div001 .icon_time{
 	  width: 1rem;
@@ -155,6 +186,7 @@ header{
     float: left;
     background: url(../assets/icons/icon_time.png) no-repeat left;
     background-size: 70%;
+    margin-left: 6rem;
 }
 .cardInfo_content .con_div001 .icon_blue{
 	width: 1rem;

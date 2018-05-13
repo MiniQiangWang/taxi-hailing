@@ -1,6 +1,5 @@
 <template>
   <div class="bg_bank">
-    <!-- <a class="re_bank" href="###"></a> -->
 		<div class="re_min_infor" v-show="loginOrRegistFlag">
       <!-- <div class="re_logo"><img src="../assets/images/logo.png"></div> -->
       <div class="bg_color">
@@ -12,20 +11,20 @@
             <span class="icon_passwarde"></span>
             <input v-if="pwdType==='password'" class="input01" type="password" placeholder="密码" v-model="userPwd"/>
             <input v-if="pwdType==='text'" class="input01" type="text" placeholder="密码" v-model="userPwd"/>
-            <span class="the_eyes" :class="eyesClass" @touchend="changeEyesType"></span>
+            <span class="the_eyes" :class="eyesClass" @click="changeEyesType"></span>
         </div>
         <div class="error-show" v-show="errorTip">用户名或密码错误</div>
         <!-- <div class="re_min"> -->
             <!-- <span class="icon_vf_code"></span> -->
             <!-- <input class="input01 login_btn" id="code" name="code" type="text" placeholder="请输入验证码" onkeyup="chkCode(this)"/> -->
-            <!-- <input class="reto_code" id="btn" ontouchend="settime(this)" value="发送验证码"/> -->
+            <!-- <input class="reto_code" id="btn" onclick="settime(this)" value="发送验证码"/> -->
         <!-- </div> -->
       </div>
       <div class="re_regist">
-          <a class="btn_regist" id="login" @touchend="login">登录</a>
+          <a class="btn_regist" id="login" @click="login">登录</a>
       </div>
       <div class="re_regist02">
-          <a class="" @touchend="changeLRFlag">没有账号？立即注册</a>
+          <a class="" @click="changeLRFlag">没有账号？立即注册</a>
       </div>
     </div>
 
@@ -50,10 +49,10 @@
         <div class="error-show" v-show="userExistedTip">账号已存在，请重新输入</div>
       </div>
       <div class="re_regist">
-          <a class="btn_regist" id="regist" @touchend="regist">注册</a>
+          <a class="btn_regist" id="regist" @click="regist">注册</a>
       </div>
       <div class="re_regist02">
-          <a class="" @touchend="changeLRFlag">已有账号，返回登陆</a>
+          <a class="" @click="changeLRFlag">已有账号，返回登陆</a>
       </div>
       <div class="r-mask" ></div>
     </div>
@@ -133,7 +132,9 @@
           userPwd: this.userPwd
         }).then((response)=>{
           let res = response.data;
+          let userMsg = res.result;
           if(res.status == '0'){
+            this.$store.commit('initUserInfo', userMsg);
             this.$router.push('/home');
             this.errorTip = false;
           }else{
@@ -143,6 +144,8 @@
       }
     }
   }
+
+ 
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

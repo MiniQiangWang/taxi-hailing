@@ -8,7 +8,7 @@
 			<div class="div_dangqian">
 				<div class="chengshi">
 					<span>当前城市：</span>
-			        <span class="des_address">深圳市</span>
+			        <span class="des_address">哈尔滨市</span>
 				</div>
 				<div class="main_head_hack">A</div>
 				<div class="div_city">
@@ -34,6 +34,16 @@
                         <li class="item">B</li>
                         <li class="item">C</li>
                         <li class="item">D</li>
+						<li class="item">E</li>
+						<li class="item">F</li>
+						<li class="item">G</li>
+						<li class="item">H</li>
+                        <li class="item">I</li>
+                        <li class="item">J</li>
+                        <li class="item">K</li>
+						<li class="item">L</li>
+						<li class="item">M</li>
+						<li class="item">N</li>
                     </ul>
 				</div>
 		   </div>
@@ -124,6 +134,9 @@ export default {
 	position: fixed;
     top: 20%;
     right: 3rem;
+}
+.letter_list li{
+	margin-bottom: 0.7rem;
 }
 </style>
 

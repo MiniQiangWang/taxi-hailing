@@ -10,6 +10,8 @@ import Wallet from '@/pages/wallet'
 import CityChoice from '@/pages/cityChoice'
 import Search from '@/pages/search'
 import RegistSuccess from '@/pages/registSuccess'
+import ScheDetail from '@/pages/scheDetail'
+import GetSche from '@/pages/getSche'
 
 Vue.use(Router)
 
@@ -60,6 +62,16 @@ export default new Router({
       path:'/search',
       name:'Search',
       component: Search
+    },
+    {
+      path:'/schedetail',
+      name:'ScheDetail',
+      component: ScheDetail
+    },
+    {
+      path:'/getsche',
+      name:'GetSche',
+      component: GetSche
     }
   ]
 })
