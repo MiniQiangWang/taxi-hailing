@@ -8,44 +8,51 @@
       </div>
     </header>
     <!--头部结束-->
-    <div class="bg_bank" v-show="!headerShowTip">
-      <a class="btn-login" @click="showMask"><span>继续编辑</span></a>
+    <!-- <div class="bg_bank" v-show="!headerShowTip">
+      <a class="btn-login" ><span>继续编辑</span></a>
 	  <a class="btn-login" @click="finish"><span>保存资料</span></a>
-  	</div>
+  	</div> -->
     <!--内容开始-->
     <div class="data_min bgbody">
-      
    	  <div class="user_list_infor">
    		<ul>
 			<li>
-   				<span>昵称</span>
-   				<input type="text" class="input01" ref="personName" maxlength="20" :placeholder="userMsg.personName || '未填写'" :value="userMsg.personName"/>
+   				<span>姓名</span>
+   				<input type="text" class="input01" ref="d_name" maxlength="6" :placeholder="driverMsg.d_name || '未填写'" :value="driverMsg.d_name"/>
    			</li>
    			<li>
    				<span>性别</span>
-   				<input type="text" class="input01" ref="sex" maxlength="1" :placeholder="userMsg.sex || '未填写'" :value="userMsg.sex"/>
+   				<input type="text" class="input01" ref="d_sex" maxlength="1" :placeholder="driverMsg.d_sex || '未填写'" :value="driverMsg.d_sex"/>
    			</li>
    			<li>
    				<span>年龄</span>
-   				<input type="text" class="input01" ref="age" maxlength="2" :placeholder="userMsg.age || '未填写'" :value="userMsg.age"/>
-   			</li>
-   			<li>
-   				<span>职业</span>
-   				<input type="text" class="input01" ref="occupation" maxlength="10" :placeholder="userMsg.occupation || '未填写'" :value="userMsg.occupation"/>
-   			</li>
-			<li style="display:inline-block;height:8rem;width:100%;">
-   				<span style="display:inline-block;height:5rem;float:left;">个性签名</span>
-   				<textarea type="text" class="input01" ref="discription" style="width:72%;height:7rem;border:1px solid #ddd;margin:0.5rem;" :placeholder="userMsg.discription || '未填写'" :value="userMsg.discription"></textarea>
-   			</li>
-   		</ul>
-   		<ul>
-			<li style="display:inline-block;height:8rem;width:100%;">
-   				<span style="display:inline-block;height:5rem;float:left;">住址</span>
-				<textarea class="input01" style="width:72%;height:7rem;border:1px solid #ddd;margin:0.5rem;" maxlength="40" ref="address" :placeholder="userMsg.address || '未填写'" :value="userMsg.address" ></textarea>
+   				<input type="text" class="input01" ref="d_age" maxlength="2" :placeholder="driverMsg.d_age || '未填写'" :value="driverMsg.d_age"/>
    			</li>
    			<li>
    				<span>手机号</span>
-   				<input type="text" class="input01" ref="phone" maxlength="11" :placeholder="userMsg.phone || '未填写'" :value="userMsg.phone"/>
+   				<input type="text" class="input01" ref="d_phone" maxlength="11" :placeholder="driverMsg.d_phone || '未填写'" :value="driverMsg.d_phone"/>
+   			</li>
+			<li style="display:inline-block;height:8rem;width:100%;">
+   				<span style="display:inline-block;height:5rem;float:left;">家庭住址</span>
+				<textarea name="" class="input01" style="width:72%;height:7rem;border:1px solid #ddd;margin:0.5rem;" ref="d_address" maxlength="100" :placeholder="driverMsg.d_address || '未填写'" :value="driverMsg.d_address" ></textarea>
+   			</li>
+   		</ul>
+   		<ul>
+   			<li>
+   				<span>驾驶证号</span>
+   				<input type="text" class="input01" ref="ID_number" maxlength="18" :placeholder="driverMsg.ID_number || '未填写'" :value="driverMsg.ID_number"/>
+   			</li>
+   			<li>
+   				<span>车型</span>
+   				<input type="text" class="input01" ref="car_model" maxlength="15" :placeholder="driverMsg.car_model || '未填写'" :value="driverMsg.car_model"/>
+   			</li>
+            <li>
+   				<span>车牌号</span>
+   				<input type="text" class="input01" ref="car_plate" maxlength="8" :placeholder="driverMsg.car_plate || '未填写'" :value="driverMsg.car_plate"/>
+   			</li>
+            <li>
+   				<span>所属公司</span>
+   				<input type="text" class="input01" ref="d_company" maxlength="20" :placeholder="driverMsg.d_company || '未填写'" :value="driverMsg.d_company"/>
    			</li>
    		</ul>
    	  </div>
@@ -55,7 +62,6 @@
 
 <script>
 import {mapState} from 'vuex'
-console.log(mapState)
 export default {
 	data () {
 		return {
@@ -64,39 +70,39 @@ export default {
 	},
 	computed: {
 		...mapState({
-			userMsg:state => {
-				return state.login.userMsg
+			driverMsg:state => {
+				return state.driverLogin.driverMsg
 			},
 			editExitTip: state => {
-				return state.login.editExitTip
+				return state.driverLogin.editExitTip
 			}
 		})
   },
 	methods: {
 		gotoCenterPage() {
-			console.log("跳到center");
 			this.$router.go(-1);
 		}, 
-		showMask() {
-			this.headerShowTip = !this.headerShowTip;
-		},
 		finish() {
-			// 
+			var _this = this;
 			var valueMsg = {
-				personName:this.$refs.personName.value,
-				sex: this.$refs.sex.value,
-				age:this.$refs.age.value,
-				occupation: this.$refs.occupation.value,
-				discription: this.$refs.discription.value,
-				address: this.$refs.address.value,
-				phone: this.$refs.phone.value
+                d_name: this.$refs.d_name.value,
+                d_sex: this.$refs.d_sex.value,
+                d_address: this.$refs.d_address.value,
+                d_phone: this.$refs.d_phone.value,
+                d_age: this.$refs.d_age.value,
+                ID_number: this.$refs.ID_number.value,
+                car_model:this.$refs.car_model.value,
+                car_plate:this.$refs.car_plate.value,
+                d_company:this.$refs.d_company.value
 			}
-			console.log(valueMsg)
-			this.$store.commit("changeUserInfo", valueMsg);
-			if(this.editExitTip == true) {
+			this.$store.commit("changeDriverInfo", valueMsg);
+			// if(this.editExitTip == true) {
 				this.$store.commit('changeEditExitTip', false);
-				this.$router.push('/center');
-			}
+				setTimeout(function () {
+					_this.$router.push('/dcenter');
+				},100);
+				
+			// }
 			
 		}
 	}
@@ -212,7 +218,6 @@ header{
 	font-size: 1.7rem;
 }
 .user_list_infor{
-	margin-top: 5rem;
 	overflow: hidden;
 }
 .user_list_infor ul{

@@ -1,25 +1,21 @@
 <template>
   <div class="bg_bank">
-    <a class="re_bank" @click="backRole"></a>
-		<div class="re_min_infor" v-show="loginOrRegistFlag">
-      <div class="re_logo">欢迎回来，乘客</div>
+     <a class="re_bank" @click="backRole"></a>
+	<div class="re_min_infor" v-show="loginOrRegistFlag">
+    <div class="re_logo">欢迎回来，司机师傅</div>
       <div class="bg_color">
         <div class="re_min">
+
             <span class="icon_phone"></span>
-            <input class="input01" name="phone" type="text" placeholder="账号" v-model="userName" maxlength="10"/><div id="div1"></div>
+            <input class="input01" name="phone" type="text" placeholder="账号" v-model="driverName"/><div id="div1"></div>
         </div>
         <div class="re_min">
             <span class="icon_passwarde"></span>
-            <input v-if="pwdType==='password'" class="input01" type="password" placeholder="密码" v-model="userPwd" maxlength="12"/>
-            <input v-if="pwdType==='text'" class="input01" type="text" placeholder="密码" v-model="userPwd" maxlength="12"/>
+            <input v-if="pwdType==='password'" class="input01" type="password" placeholder="密码" v-model="driverPwd"/>
+            <input v-if="pwdType==='text'" class="input01" type="text" placeholder="密码" v-model="driverPwd"/>
             <span class="the_eyes" :class="eyesClass" @click="changeEyesType"></span>
         </div>
         <div class="error-show" v-show="errorTip">用户名或密码错误</div>
-        <!-- <div class="re_min"> -->
-            <!-- <span class="icon_vf_code"></span> -->
-            <!-- <input class="input01 login_btn" id="code" name="code" type="text" placeholder="请输入验证码" onkeyup="chkCode(this)"/> -->
-            <!-- <input class="reto_code" id="btn" onclick="settime(this)" value="发送验证码"/> -->
-        <!-- </div> -->
       </div>
       <div class="re_regist">
           <a class="btn_regist" id="login" @click="login">登录</a>
@@ -34,20 +30,20 @@
       <div class="bg_color">
         <div class="re_min">
             <span class="icon_phone"></span>
-            <input class="input01" name="phone" type="text" placeholder="注册的账号,6-10位" v-model="rUserName" maxlength="10"/><div id="div1"></div>
+            <input class="input01" name="phone" type="text" placeholder="您要注册的账号" v-model="rDriverName"/><div id="div1"></div>
         </div>
         <div class="re_min">
             <span class="icon_passwarde"></span>
-            <input class="input01" name="password" type="password" placeholder="输入密码,8-12位" v-model="rUserPwd" maxlength="12"/>
+            <input class="input01" name="password" type="password" placeholder="输入密码" v-model="rDriverPwd"/>
             <span class="the_eyes"></span>
         </div>
         <div class="re_min">
             <span class="icon_passwarde"></span>
-            <input class="input01" name="password" type="password" placeholder="确认密码,8-12位" v-model="rSecondUserPwd" maxlength="12"/>
+            <input class="input01" name="password" type="password" placeholder="确认密码" v-model="rSecondDriverPwd"/>
             <span class="the_eyes"></span>
         </div>
-        <div class="error-show" v-show="equalTip">输入有误，请检查</div>
-        <div class="error-show" v-show="userExistedTip">账号已存在，请重新输入</div>
+        <div class="error-show" v-show="equalTip">两次输入的密码不一致</div>
+        <div class="error-show" v-show="driverExistedTip">账号已存在，请重新输入</div>
       </div>
       <div class="re_regist">
           <a class="btn_regist" id="regist" @click="regist">注册</a>
@@ -55,7 +51,6 @@
       <div class="re_regist02">
           <a class="" @click="changeLRFlag">已有账号，返回登陆</a>
       </div>
-      <div class="r-mask" ></div>
     </div>
     
   </div>
@@ -69,14 +64,14 @@
     data() {
       return {
         loginOrRegistFlag:true,
-        userName:'',
-        userPwd:'',
+        driverName:'',
+        driverPwd:'',
         errorTip:false,
-        rUserName:'',
-        rUserPwd:'',
-        rSecondUserPwd:'',
+        rDriverName:'',
+        rDriverPwd:'',
+        rSecondDriverPwd:'',
         equalTip: false,
-        userExistedTip:false,
+        driverExistedTip:false,
         pwdType:'password'
       }
     },
@@ -102,44 +97,46 @@
         this.$router.push('/role');
       },
       regist () {
-        if(this.rUserName.length < 6 || this.rUserPwd.length < 8 || this.rSecondUserPwd.length < 8 || this.rUserPwd !== this.rSecondUserPwd) {
+        if(this.rDriverName.length < 6 || this.rDriverPwd.length < 8 || this.rSecondDriverPwd.length < 8 || this.rDriverPwd !== this.rSecondDriverPwd) {
+          console.log(`this.rDriverPwd:${this.rDriverPwd}this.rSecondDriverPwd:${this.rSecondDriverPwd}`);
           this.equalTip = true;
-          this.userExistedTip=false;
+          this.driverExistedTip=false;
         }else {
-            this.equalTip = false;
-            axios.post('/users/regist', {
-            userName: this.rUserName,
-            userPwd: this.rUserPwd
+          console.log(`**this.equalTip:${this.equalTip}`);
+          this.equalTip = false;
+          axios.post('/drivers/dregist', {
+            driverName: this.rDriverName,
+            driverPwd: this.rDriverPwd
           })
           .then((response)=>{
             let res = response.data;
-            if(res.status == '0'){
-              this.$router.push('/registSuccess');
-            }else if (res.status == '10'){
-              this.userExistedTip=true;
+            if(res.status == '00'){
+              this.$router.push('/drs');
+            }else if (res.status == '11'){
+              this.driverExistedTip=true;
             }
             else{
               this.equalTip = true;
-              alert('qubudao')
+              console.log('qubudao')
             }
           })
         }
-        
       },
       login() {
-        if(!this.userName || !this.userPwd || this.userName.length < 6 || this.userPwd.length < 8) {
+        if(!this.driverName || !this.driverPwd || this.driverName.length < 6 || this.driverPwd.length < 8) {
           this.errorTip = true;
           return;
         }
-        axios.post('/users/login', {
-          userName: this.userName,
-          userPwd: this.userPwd
+        axios.post('/drivers/login', {
+          driverName: this.driverName,
+          driverPwd: this.driverPwd
         }).then((response)=>{
           let res = response.data;
-          let userMsg = res.result;
+          let driverMsg = res.result;
           if(res.status == '0'){
-            this.$store.commit('initUserInfo', userMsg);
-            this.$router.push('/home');
+            this.$store.commit('initDriverInfo', driverMsg);
+            this.$router.push('/dhome');
+            
             this.errorTip = false;
           }else{
             this.errorTip = true;
@@ -152,7 +149,6 @@
  
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .bg_bank{
     position: absolute;
@@ -178,6 +174,8 @@
     margin: 0 auto;
     margin-top: 20%;
     overflow: hidden;
+    font-size: 2rem;
+    color: #fff;
 }
 .re_logo img{
 	width: 70%;

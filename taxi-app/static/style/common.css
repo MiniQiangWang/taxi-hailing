@@ -17,4 +17,4 @@ html{font-size:10px;}
 .clear{clear:both;height:0;font-size:0;line-height:0;visibility:hidden; overflow:hidden;} 
 .fl{float:left;}
 .fr{float:right;}
-body{ margin:0 auto;max-width:640px; min-width:320px;color:#555; padding-bottom:8%;background:#ffffff;height:100%;}
+body{ margin:0 auto;max-width:640px; min-width:320px;color:#555; padding-bottom:8%;background:rgba(247,247,247);height:100%;}

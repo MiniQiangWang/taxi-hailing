@@ -17,15 +17,18 @@
     	<div class="map_infor">
     		<div class="map_min">
     			<span class="icon_blue"></span>
-    			<input type="text" id="startId" ref="startId" size="20" value="" placeholder="请输入上车点" style="width:23rem;" />
+    			<input type="text" id="startId" ref="startId" size="20" v-model="startPoint" placeholder="请输入上车点" style="width:27rem;" />
 					<div id="searchStartPanel" style="position:fixed;top:6rem;border:1px solid #C0C0C0;width:150px;height:3rem; display:none;"></div>
     		</div>
     		<div class="map_min">
     			<span class="icon_org"></span>
-    			<input type="text" id="endId" ref="endId" size="20" value="" placeholder="请目的地" style="width:23rem;" />
+    			<input type="text" id="endId" ref="endId" size="20" v-model="endPoint" placeholder="请输入目的地" style="width:27rem;" />
 					<div id="searchEndPanel" style="position:fixed;top:6rem;border:1px solid #C0C0C0;width:150px;height:3rem; display:none;"></div>
     		</div>
-    		
+    		<div class="route-msg" v-show="routeMsgTip">
+					<div class="route-item">距离：{{distance}}</div>
+					<div class="route-item">价格：{{9+parseInt(distance)*2}}元</div>
+				</div>
     		<div class="div_display"  v-show="mapBtnFlag">
 					<div class="map_div01">
 					<!-- <span>是否与附近的人拼车</span> -->
@@ -38,7 +41,7 @@
     		<div v-bind:class="[showIcon ? iconDropUp : iconDropDown, ]" @click="changeMapBtnFlag"></div>
     	</div>
     	<div class="div_map_btn">
-    		<a class="call_car" @click="callACar">立即叫车</a>
+    		<a class="call_car" @click="callBtnTip && callACar()">{{btnMsg}}</a>
     	</div>
     </div>
     <!--内容结束-->
@@ -64,9 +67,9 @@
               </a>
             </li>
             <li>
-              <a>
+              <a @click="gotoSendFeed">
               <span class="icon icon_service"></span>
-              <span>聊天功能</span>
+              <span>建议反馈</span>
               </a>
             </li>
             <!-- <li>
@@ -85,32 +88,71 @@
 
 <script>
 	import BMap from 'BMap';
+	import VueSocketio from 'vue-socket.io';
+	import {mapState} from 'vuex'
   export default {
     components: {
 
     },
     data() {
       return {
+		btnMsg:'输入后叫车',
         selected: "",
         showFlag: false,
         mapBtnFlag: false,
         showIcon: true,
         iconDropUp:"icon-drop-up",
-				iconDropDown:"icon-drop-down",
-				initPoint:'',
-				localCity:'',
-				// map : new BMap.Map("l-map",{minZoom:16,maxZoom:16}),
-				// point : new BMap.Point(11.331398,39.897445)
-				//myMap: '',
-				startPoint:'',
-				endPoint:'',
-				startPointNum:{},
-				endPointNum:{}
+		iconDropDown:"icon-drop-down",
+		initPoint:'',
+		localCity:'',
+		startPoint:'',
+		endPoint:'',
+		startPointNum:'',
+		endPointNum:'',
+		callBtnTip:false,
+		duration: 0,
+		distance: 0,
+		routeMsgTip: false
       }
 		},
+		watch: {
+			inputVal(cur, old) {
+				if(cur.startPoint !== '' && cur.endPoint !== '') {
+					this.callBtnTip = true;
+					this.btnMsg = '立即叫车';
+					this.routeMsgTip = true;
+				}else {
+					this.callBtnTip = false;
+					this.btnMsg = '输入后叫车';
+					this.routeMsgTip = false;
+				}
+			},
+			deep:true
+		},
 		computed: {
+			...mapState({
+				userMsg: state => {
+					return state.login.userMsg
+				}
+			}),
+			inputVal() {
+				var {startPoint, endPoint} = this;
+				return {
+					startPoint,
+					endPoint
+				}
+			},
 			personName() {
-				return this.$store.state.login.userMsg.personName
+				return this.userMsg.personName;
+			}
+		},
+		sockets: {
+			connect:function () {
+				console.log("socket连接成功");
+			},
+			callCarSuccess(orderMsg) {
+				this.$store.commit('setInitOrder',orderMsg);
+				this.$router.push('/loader');
 			}
 		},
 		mounted() {
@@ -128,35 +170,26 @@
 				if(this.getStatus() == BMAP_STATUS_SUCCESS){
 					_this.localCity = r.address.city;
 					var mk = new BMap.Marker(r.point);
-					
 					_this.initPoint = r.point;
-					
 					map.addOverlay(mk);
 					// 将地图的中心点更改为给定的点
 					map.panTo(r.point);
 				}else {
 					alert('failed'+this.getStatus());
 				}        
-			});
-			
-
+			},{enableHighAccuracy: true});
 		// 	//*********************关键字索引框
-
 			function G(id) {
 				return document.getElementById(id);
 			}
-
-			var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
-				{
-					"input" : "startId",
-					"location" : map
-				});
-				var bc = new BMap.Autocomplete(    //建立一个自动完成的对象
-				{
-					"input" : "endId",
-					"location" : map
-				});
-
+			var ac = new BMap.Autocomplete({
+				"input" : "startId",
+				"location" : map
+			});
+			var bc = new BMap.Autocomplete({
+				"input" : "endId",
+				"location" : map
+			});
 			var myValue;
 			// 测试
 			ac.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
@@ -172,15 +205,13 @@
 				　　var keyword = myValue;
 				　　localSearch.setSearchCompleteCallback(function (searchResult) {
 				　　　　var poi = searchResult.getPoi(0);
-				　　　　_this.startPointNum.lng = poi.point.lng;
-						   _this.startPointNum.lat = poi.point.lat;
+				　　　　_this.startPointNum = poi.point.lng + ','+ poi.point.lat;
 				　　});
 				　　localSearch.search(keyword);
 				}
 
 				G("searchStartPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
 				_this.startPoint = myValue;
-				console.log(_this.startPoint)
 				if(!_this.$refs.endId.value) {
 					setPlace();
 				}else {
@@ -192,7 +223,6 @@
 				myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
 				G("searchEndPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
 				_this.endPoint = myValue;
-				console.log(_this.endPoint)
 				if(!_this.$refs.startId.value) {
 					setPlace();
 				}else {
@@ -212,47 +242,63 @@
 				});
 				local.search(myValue);
 			}
-			function drawRoute () {
-				var p1 = new BMap.Point(116.301934,39.977552);
-				var p2 = new BMap.Point(116.508328,39.919141);
+			map.centerAndZoom(new BMap.Point(116.404, 39.915), 12);
 
-				console.log(_this.startPoint,_this.endPoint,"111",p1,p2);
-				var driving = new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true},
+			var searchComplete = function (results){
+				if (driving.getStatus() != 0){
+					return ;
+				}
+				var plan = results.getPlan(0);
+				
+				_this.duration = plan.getDuration(true);                //获取时间
+				_this.distance = plan.getDistance(true);   
+				          //获取距离
+			}
+			var driving
+			function drawRoute () {
+				map.clearOverlays();
+				driving = new BMap.DrivingRoute(map, {
+					renderOptions:{map: map, autoViewport: true},
+					onSearchComplete: searchComplete,
 					onPolylinesSet:function(routes) { 
-            searchRoute = routes[0].getPolyline();//导航路线
-            map.addOverlay(searchRoute); 
-					}, 
+            			var searchRoute = routes[0].getPolyline();//导航路线
+						map.addOverlay(searchRoute); 
+					},
 					onMarkersSet:function(routes) {
-							map.removeOverlay(routes[0].marker); //删除起点
-								map.removeOverlay(routes[1].marker);//删除终点
+						map.removeOverlay(routes[0].marker); //删除起点
+						map.removeOverlay(routes[1].marker);//删除终点
 					}
-        });
+        		});
 				driving.search(_this.startPoint,_this.endPoint);
 			}
-
-
-			// ***********************地图点击事件
-			// function showInfo(e){
-			// 	console.log(e.point.lng + ", " + e.point.lat);
-			// 	_this.startPointNum.lng = e.point.lng;
-			// 	_this.startPointNum.lat = e.point.lat;
-			// }
-			// map.addEventListener("click", showInfo);
 		},
     methods: {
-      changeShowFlag() {
-        this.showFlag = !this.showFlag;
-      },
-      changeMapBtnFlag() {
-        this.showIcon = !this.showIcon;
-        this.mapBtnFlag = !this.mapBtnFlag;
-			},
-			showCenterPage() {
-				this.$router.push('/center');
-			},
-			callACar() {
-				
+		changeShowFlag() {
+			this.showFlag = !this.showFlag;
+		},
+		changeMapBtnFlag() {
+			this.showIcon = !this.showIcon;
+			this.mapBtnFlag = !this.mapBtnFlag;
+		},
+		showCenterPage() {
+			this.$router.push('/center');
+		},
+		callACar() {
+			var _this = this;
+			var orderMessage = {
+				startPoint:this.startPoint,
+				endPoint:this.endPoint,
+				userName: _this.userMsg.userName,
+				passagerName: _this.userMsg.personName,
+				passagerPhone: _this.userMsg.phone,
+				startPointNum: this.startPointNum
 			}
+			this.$socket.emit('click1', orderMessage);
+			
+		},
+		gotoSendFeed() {
+			this.$router.push('/feedback');
+		}
     }
   }
 </script>
@@ -262,7 +308,7 @@
 /*头部导航*/
 #l-map {
 	position: fixed;
-	height: 90%;
+	height: 100%;
 	width: 100%;
 	z-index:1;
 }
@@ -330,12 +376,10 @@ header{
 }
 .map_infor{
 	width: 85%;
-	padding-top: 10px;
-	padding-bottom: 25px;
 	background: #fff;
 	margin: 0 auto;
 	position: relative;
-	top: 20px;
+	top: 3rem;
 	border-radius: 10px;
 	box-shadow: 0px 3px 2px 2px #e3e3e3;
 }
@@ -400,16 +444,22 @@ header{
 .div_map_btn{
 	position: relative;
 }
+.route-item {
+	height:2rem;
+	font-size: 1.5rem;
+	color: #000;
+	text-align: center;
+}
 .call_car{
-	width: 75%;
-	font-size: 1.2rem;
-	height: 3rem;
-	line-height: 3rem;
+	width: 80%;
+	font-size: 2rem;
+	height: 4rem;
+	line-height: 4rem;
 	text-align: center;
 	color: #FFFFFF;
 	display: block;
 	margin: 0 auto;
-	margin-top: 40px;
+	margin-top: 5rem;
 	background: #08c8fb;
 	border-radius: 5px;
 }
@@ -497,6 +547,7 @@ header{
 .personal_data{
 	padding: 20px;
 	overflow: hidden;
+	font-size: 1.7rem;
 }
 .personal_data li{
 	  display: block;
@@ -515,8 +566,8 @@ header{
 	color: #555;
 }
 .personal_data .icon{
-	width: 4rem;
-	height: 3rem;
+	width: 5rem;
+	height: 5rem;
 	line-height: 3rem;
 }
 .personal_data .icon_address{

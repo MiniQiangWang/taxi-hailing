@@ -12,38 +12,46 @@
     <!--内容开始-->
     <div class="personal_min">
       <div class="det_user_phone">
-        <span class="user_portrait03"><img src="../assets/icons/icon_portrait.png"></span>
-        <span class="user_name03">{{userMsg.personName}}</span>
+        <span class="user_name03">{{driverMsg.personName}}</span>
       </div>
    	  <div class="user_aut">
    		<ul>
    			<li>
-   				<span>账号</span><span v-text="userMsg.userName"></span>
-   			</li>
-   			<li>
-   				<span>性别</span><span v-text="userMsg.sex"></span>
-   			</li>
-   			<li>
-   				<span>年龄</span><span v-text="userMsg.age"></span>
-   			</li>
-   			<li>
-   				<span>职业</span><span v-text="userMsg.occupation"></span>
+   				<span>账号</span><span v-text="driverMsg.d_userName"></span>
    			</li>
             <li>
-   				<span>个性签名</span><span v-text="userMsg.discription"></span>
+   				<span>姓名</span><span v-text="driverMsg.d_name"></span>
+   			</li>
+   			<li>
+   				<span>性别</span><span v-text="driverMsg.d_sex"></span>
+   			</li>
+   			<li>
+   				<span>年龄</span><span v-text="driverMsg.d_age"></span>
+   			</li>
+   			<li>
+   				<span>手机号</span><span v-text="driverMsg.d_phone"></span>
+   			</li>
+            <li>
+   				<span>家庭住址</span><span v-text="driverMsg.d_address"></span>
+   			</li>
+            <li>
+   				<span>驾驶证号</span><span v-text="driverMsg.ID_number"></span>
    			</li>
    		</ul>
    		<ul>
    			<li>
-   				<span>住址</span><span v-text="userMsg.address"></span>
+   				<span>车型</span><span v-text="driverMsg.car_model"></span>
+   			</li>
+            <li>
+   				<span>车牌号</span><span v-text="driverMsg.car_plate"></span>
    			</li>
    			<li>
-   				<span>手机号</span><span v-text="userMsg.phone"></span>
+   				<span>所属公司</span><span v-text="driverMsg.d_company"></span>
    			</li>
    		</ul>
-        <!-- <div class="ch_password">
+        <div class="ch_password">
           <a class="btn_ch">修改密码</a>
-        </div> -->
+        </div>
    	  </div>
       <div class="re_regist">
           <a class="btn_regist" id="regist" @click="logOut">退出登陆</a>
@@ -58,7 +66,7 @@ import {mapState} from 'vuex'
 export default {
   data() {
     return {
-        
+
     }
   },
   mounted() {
@@ -66,24 +74,23 @@ export default {
   },
   computed: {
     ...mapState({
-        userMsg: state => {
-			return state.login.userMsg
+        driverMsg: state => {
+			return state.driverLogin.driverMsg
         }
     })
   },
   methods: {
     backToHome () {
-        console.log("跳到home");
-        this.$router.push('/home');
+        this.$router.push('/dhome');
     },
     gotoLoginPage() {
-        this.$router.push('/user');
+        this.$router.push('/dlogin');
     },
     gotoEditPage() {
-        this.$router.push('/edit');
+        this.$router.push('/dedit');
     },
     logOut() {
-        axios.post('/users/logout').then((response)=>{
+        axios.post('/drivers/logout').then((response)=>{
           let res = response.data;
           if(res.status == "0") {
             console.log('已登出');
@@ -92,11 +99,11 @@ export default {
         })
     },
     checkLogin() {
-        axios.post('/users/checklogin').then((response)=>{
+        axios.post('/drivers/checklogin').then((response)=>{
             let res = response.data;
             if(res.status == '0') {
                 // console.log(res.result);
-                this.$store.commit('initUserInfo', res.result);
+                this.$store.commit('initDriverInfo', res.result);
             }
         });
     },
@@ -186,7 +193,7 @@ header{
 	height: 4rem;
     line-height: 4rem;
     color: #2a2a2a;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: #333;
     font-weight: bold;
 }
@@ -202,6 +209,7 @@ header{
 }
 .user_aut li span{
     display: inline-block;
+        font-size: 1.5rem;
 }
 .user_aut li span:first-child {
     width: 7rem;

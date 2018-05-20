@@ -21,7 +21,7 @@ router.post('/login', function (req, res, next) {
       if (doc) {
         res.cookie("userId", doc.userId, {//向cookie写数据
           path: '/',
-          maxAge: 1000*60*60
+          maxAge: 1000*60*60*24
         });
         //req.session.user = doc;//获取用户信息
         res.json({
@@ -108,7 +108,7 @@ router.post('/regist', function (req, res, next) {
       }else {
         var newDate = new Date();
         var param = {
-          userId: Date.now() + '',
+          userId: new Date() + '',
           userName: req.body.userName,
           userPwd: req.body.userPwd,
           personName: '用户_'+ newDate.getFullYear() + (newDate.getMonth()+1) + newDate.getDay() + req.body.userName,
@@ -186,7 +186,6 @@ router.post('/update', function (req,res,next) {
     }
   })
 })
-  
 
 // router.post('/update', function (req,res,next) {
   
