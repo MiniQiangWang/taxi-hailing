@@ -1,6 +1,6 @@
 # taxi-app
 
-> A Vue.js project
+> 打车软件demo，大学毕业设计，满满的回忆
 
 ## Build Setup
 
